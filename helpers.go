@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+
+	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v2"
 )
 
 func getBodyAsBytes(body io.ReadCloser) ([]byte, error) {
@@ -33,4 +36,44 @@ func getJSONBodyAsStruct(body io.ReadCloser, s interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func parseBody(c *gin.Context, s interface{}) error {
+	d := "json"
+	format := c.Request.URL.Query()["d"]
+	if len(format) > 0 {
+		d = format[0]
+	}
+
+	b, err := getBodyAsBytes(c.Request.Body)
+	if err != nil {
+		return err
+	}
+
+	err = nil
+
+	if d == "yaml" {
+		err = yaml.Unmarshal(b, s)
+	} else {
+		err = json.Unmarshal(b, s)
+	}
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func renderHttp(code int, data interface{}, c *gin.Context) {
+	f := "json"
+	format := c.Request.URL.Query()["f"]
+	if len(format) > 0 {
+		f = format[0]
+	}
+	if f == "yaml" {
+		out, _ := yaml.Marshal(data)
+		c.Data(code, "text/yaml", out)
+	} else {
+		c.JSON(code, data)
+	}
 }

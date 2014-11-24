@@ -14,15 +14,15 @@ type Node struct {
 }
 
 type Role struct {
-	Id   bson.ObjectId `bson:"_id,omitempty"`
-	Name string        `bson:"name"`
-	Vars VarsBucket    `bson:"vars,omitempty"`
+	Id   bson.ObjectId `bson:"_id,omitempty" json:"id" yaml:"id"`
+	Name string        `bson:"name" json:"name" yaml:"name"`
+	Vars VarsBucket    `bson:"vars,omitempty"  json:"vars,omitempty" yaml:"vars,omitempty"`
 }
 
 type Vars struct {
-	Source string                 `bson:"source"`
-	Prio   int                    `bson:"prio"`
-	Vars   map[string]interface{} `bson:"vars,omitempty"`
+	Source string                 `bson:"source" json:"source" yaml:"source"`
+	Prio   int                    `bson:"prio" json:"prio" yaml:"prio"`
+	Vars   map[string]interface{} `bson:"vars,omitempty" json:"vars,omitempty" yaml:"vars,omitempty"`
 }
 
 type VarsBucket []Vars

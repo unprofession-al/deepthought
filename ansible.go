@@ -5,9 +5,9 @@ import "gopkg.in/mgo.v2/bson"
 type AnsibleInventory map[string]*AnsibleGroup
 
 type AnsibleGroup struct {
-	Hosts    []AnsibleHost                     `json:"hosts,omitempty"`
-	Vars     map[string]interface{}            `json:"vars,omitempty"`
-	Hostvars map[string]map[string]interface{} `json:"hostvars,omitempty"`
+	Hosts    []AnsibleHost                     `json:"hosts,omitempty" yaml:"hosts,omitempty"`
+	Vars     map[string]interface{}            `json:"vars,omitempty" yaml:"vars,omitempty"`
+	Hostvars map[string]map[string]interface{} `json:"hostvars,omitempty" yaml:"hostvars,omitempty"`
 }
 
 type AnsibleHost string

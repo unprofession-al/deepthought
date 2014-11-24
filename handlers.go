@@ -12,9 +12,9 @@ func AddNode(c *gin.Context) {
 	name := c.Params.ByName("node")
 
 	var vars map[string]interface{}
-	err := getJSONBodyAsStruct(c.Request.Body, &vars)
+	err := parseBody(c, &vars)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -29,11 +29,11 @@ func AddNode(c *gin.Context) {
 
 	count, err := data.Nodes.Find(bson.M{"name": name}).Count()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 	if count > 0 {
-		c.JSON(http.StatusInternalServerError, "node already exists")
+		renderHttp(http.StatusInternalServerError, "node already exists", c)
 		return
 	}
 
@@ -41,14 +41,14 @@ func AddNode(c *gin.Context) {
 		url := strings.Replace(provider.Url, "{{nodename}}", node.Name, -1)
 		resp, err := http.Get(url)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			renderHttp(http.StatusInternalServerError, err.Error(), c)
 			return
 		}
 
 		var pvars map[string]interface{}
 		err = getJSONBodyAsStruct(resp.Body, &pvars)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			renderHttp(http.StatusInternalServerError, err.Error(), c)
 			return
 		}
 
@@ -63,11 +63,11 @@ func AddNode(c *gin.Context) {
 
 	err = data.Nodes.Insert(node)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
-	c.JSON(http.StatusOK, node)
+	renderHttp(http.StatusOK, node, c)
 }
 
 func ListNodes(c *gin.Context) {
@@ -75,10 +75,10 @@ func ListNodes(c *gin.Context) {
 
 	err := data.Nodes.Find(bson.M{}).All(nodes)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
-	c.JSON(http.StatusOK, nodes)
+	renderHttp(http.StatusOK, nodes, c)
 }
 
 func UpdateNodevars(c *gin.Context) {
@@ -86,9 +86,9 @@ func UpdateNodevars(c *gin.Context) {
 	vn := c.Params.ByName("var")
 
 	var vars map[string]interface{}
-	err := getJSONBodyAsStruct(c.Request.Body, &vars)
+	err := parseBody(c, &vars)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -101,7 +101,7 @@ func UpdateNodevars(c *gin.Context) {
 	node := &Node{}
 	err = data.Nodes.Find(bson.M{"name": nn}).One(node)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -109,11 +109,11 @@ func UpdateNodevars(c *gin.Context) {
 
 	err = data.Nodes.UpdateId(node.Id, node)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
-	c.JSON(http.StatusOK, node)
+	renderHttp(http.StatusOK, node, c)
 }
 
 func GetNodevars(c *gin.Context) {
@@ -123,17 +123,17 @@ func GetNodevars(c *gin.Context) {
 	node := &Node{}
 	err := data.Nodes.Find(bson.M{"name": nn}).One(node)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
 	for _, vars := range node.Vars {
 		if vars.Source == vn {
-			c.JSON(http.StatusOK, vars.Vars)
+			renderHttp(http.StatusOK, vars.Vars, c)
 			return
 		}
 	}
-	c.JSON(http.StatusNotFound, "vars not found")
+	renderHttp(http.StatusNotFound, "vars not found", c)
 }
 
 func TriggerProvider(c *gin.Context) {
@@ -144,7 +144,7 @@ func TriggerProvider(c *gin.Context) {
 
 	err := data.Nodes.Find(bson.M{"name": n}).One(node)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -153,14 +153,14 @@ func TriggerProvider(c *gin.Context) {
 			url := strings.Replace(provider.Url, "{{nodename}}", node.Name, -1)
 			resp, err := http.Get(url)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, err.Error())
+				renderHttp(http.StatusInternalServerError, err.Error(), c)
 				return
 			}
 
 			var pvars map[string]interface{}
 			err = getJSONBodyAsStruct(resp.Body, &pvars)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, err.Error())
+				renderHttp(http.StatusInternalServerError, err.Error(), c)
 				return
 			}
 
@@ -173,25 +173,26 @@ func TriggerProvider(c *gin.Context) {
 
 			err = data.Nodes.UpdateId(node.Id, node)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, err.Error())
+				renderHttp(http.StatusInternalServerError, err.Error(), c)
 				return
 			}
 
 			c.JSON(http.StatusOK, node)
+			renderHttp(http.StatusOK, node, c)
 			return
 		}
 	}
 
-	c.JSON(http.StatusNotFound, "provider not found")
+	renderHttp(http.StatusNotFound, "provider not found", c)
 }
 
 func AddRole(c *gin.Context) {
 	name := c.Params.ByName("role")
 
 	var vars map[string]interface{}
-	err := getJSONBodyAsStruct(c.Request.Body, &vars)
+	err := parseBody(c, &vars)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -206,17 +207,17 @@ func AddRole(c *gin.Context) {
 
 	count, err := data.Roles.Find(bson.M{"name": name}).Count()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 	if count > 0 {
-		c.JSON(http.StatusInternalServerError, "role already exists")
+		renderHttp(http.StatusInternalServerError, "role already exists", c)
 		return
 	}
 
 	err = data.Roles.Insert(role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -228,10 +229,10 @@ func ListRoles(c *gin.Context) {
 
 	err := data.Roles.Find(bson.M{}).All(roles)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
-	c.JSON(http.StatusOK, roles)
+	renderHttp(http.StatusOK, roles, c)
 }
 
 func UpdateRolevars(c *gin.Context) {
@@ -239,9 +240,9 @@ func UpdateRolevars(c *gin.Context) {
 	vn := c.Params.ByName("var")
 
 	var vars map[string]interface{}
-	err := getJSONBodyAsStruct(c.Request.Body, &vars)
+	err := parseBody(c, &vars)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -254,7 +255,7 @@ func UpdateRolevars(c *gin.Context) {
 	role := &Role{}
 	err = data.Roles.Find(bson.M{"name": rn}).One(role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -262,11 +263,11 @@ func UpdateRolevars(c *gin.Context) {
 
 	err = data.Roles.UpdateId(role.Id, role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
-	c.JSON(http.StatusOK, role)
+	renderHttp(http.StatusOK, role, c)
 }
 
 func GetRolevars(c *gin.Context) {
@@ -276,17 +277,17 @@ func GetRolevars(c *gin.Context) {
 	role := &Role{}
 	err := data.Roles.Find(bson.M{"name": rn}).One(role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
 	for _, vars := range role.Vars {
 		if vars.Source == vn {
-			c.JSON(http.StatusOK, vars.Vars)
+			renderHttp(http.StatusOK, vars.Vars, c)
 			return
 		}
 	}
-	c.JSON(http.StatusNotFound, "vars not found")
+	renderHttp(http.StatusNotFound, "vars not found", c)
 }
 
 func LinkNodeWithRole(c *gin.Context) {
@@ -296,14 +297,14 @@ func LinkNodeWithRole(c *gin.Context) {
 	node := &Node{}
 	err := data.Nodes.Find(bson.M{"name": nodeName}).One(node)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
 	role := &Role{}
 	err = data.Roles.Find(bson.M{"name": roleName}).One(role)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
 
@@ -318,23 +319,23 @@ func LinkNodeWithRole(c *gin.Context) {
 		node.Roles = append(node.Roles, role.Id)
 		err = data.Nodes.UpdateId(node.Id, node)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			renderHttp(http.StatusInternalServerError, err.Error(), c)
 			return
 		}
 	}
 
-	c.JSON(http.StatusOK, node)
+	renderHttp(http.StatusOK, node, c)
 }
 
 func GetInventory(c *gin.Context) {
 	i, err := NewAnsibleInventory()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
 		return
 	}
-	c.JSON(http.StatusOK, i)
+	renderHttp(http.StatusOK, i, c)
 }
 
 func GetConfig(c *gin.Context) {
-	c.JSON(http.StatusOK, config)
+	renderHttp(http.StatusOK, config, c)
 }

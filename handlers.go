@@ -116,6 +116,34 @@ func UpdateNodevars(c *gin.Context) {
 	renderHttp(http.StatusOK, node, c)
 }
 
+func GetNode(c *gin.Context) {
+	nn := c.Params.ByName("node")
+
+	node := &Node{}
+	err := data.Nodes.Find(bson.M{"name": nn}).One(node)
+	if err != nil {
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
+		return
+	}
+
+	renderHttp(http.StatusOK, node, c)
+}
+
+func GetMergedNodevars(c *gin.Context) {
+	nn := c.Params.ByName("node")
+
+	node := &Node{}
+	err := data.Nodes.Find(bson.M{"name": nn}).One(node)
+	if err != nil {
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
+		return
+	}
+
+	vars := node.Vars.Merge()
+	
+	renderHttp(http.StatusOK, vars, c)
+}
+
 func GetNodevars(c *gin.Context) {
 	nn := c.Params.ByName("node")
 	vn := c.Params.ByName("var")
@@ -288,6 +316,19 @@ func GetRolevars(c *gin.Context) {
 		}
 	}
 	renderHttp(http.StatusNotFound, "vars not found", c)
+}
+
+func GetRole(c *gin.Context) {
+	rn := c.Params.ByName("role")
+
+	role := &Role{}
+	err := data.Roles.Find(bson.M{"name": rn}).One(role)
+	if err != nil {
+		renderHttp(http.StatusInternalServerError, err.Error(), c)
+		return
+	}
+
+	renderHttp(http.StatusOK, role, c)
 }
 
 func LinkNodeWithRole(c *gin.Context) {

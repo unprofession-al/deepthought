@@ -39,12 +39,15 @@ func main() {
 
 	g.GET("/nodes", ListNodes)
 	g.POST("/nodes/:node", AddNode)
+	g.GET("/nodes/:node", GetNode)
+	g.GET("/nodes/:node/vars", GetMergedNodevars)
 	g.PUT("/nodes/:node/vars/:var", UpdateNodevars)
 	g.GET("/nodes/:node/vars/:var", GetNodevars)
 	g.PUT("/nodes/:node/providers/:provider", TriggerProvider)
 
 	g.GET("/roles", ListRoles)
 	g.POST("/roles/:role", AddRole)
+	g.GET("/roles/:role", GetRole)
 	g.PUT("/roles/:role/vars/:var", UpdateRolevars)
 	g.GET("/roles/:role/vars/:var", GetRolevars)
 

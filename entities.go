@@ -7,10 +7,10 @@ import (
 )
 
 type Node struct {
-	Id    bson.ObjectId   `bson:"_id,omitempty"`
-	Name  string          `bson:"name"`
-	Roles []bson.ObjectId `bson:"roles"`
-	Vars  VarsBucket      `bson:"vars,omitempty"`
+	Id    bson.ObjectId   `bson:"_id,omitempty" json:"id"`
+	Name  string          `bson:"name" json:"name"`
+	Roles []bson.ObjectId `bson:"roles" json:"roles"`
+	Vars  VarsBucket      `bson:"vars,omitempty" json:"vars"`
 }
 
 type Role struct {

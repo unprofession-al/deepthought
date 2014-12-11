@@ -40,18 +40,24 @@ func main() {
 	g.GET("/nodes", ListNodes)
 	g.POST("/nodes/:node", AddNode)
 	g.GET("/nodes/:node", GetNode)
+	g.DELETE("/nodes/:node", DeleteNode)
 	g.GET("/nodes/:node/vars", GetMergedNodevars)
 	g.PUT("/nodes/:node/vars/:var", UpdateNodevars)
 	g.GET("/nodes/:node/vars/:var", GetNodevars)
-	g.PUT("/nodes/:node/providers/:provider", TriggerProvider)
+	g.POST("/nodes/:node/providers/:provider", TriggerProvider)
 
 	g.GET("/roles", ListRoles)
 	g.POST("/roles/:role", AddRole)
 	g.GET("/roles/:role", GetRole)
+	g.DELETE("/roles/:role", DeleteRole)
+	g.GET("/roles/:role/vars", GetMergedRolevars)
 	g.PUT("/roles/:role/vars/:var", UpdateRolevars)
 	g.GET("/roles/:role/vars/:var", GetRolevars)
 
-	g.PUT("/nodes/:node/roles/:role", LinkNodeWithRole)
+	g.POST("/nodes/:node/roles/:role", LinkNodeWithRole)
+	g.POST("/roles/:role/nodes/:node", LinkNodeWithRole)
+	g.DELETE("/nodes/:node/roles/:role", UnlinkNodeWithRole)
+	g.DELETE("/roles/:role/nodes/:node", UnlinkNodeWithRole)
 
 	g.GET("/inventory", GetInventory)
 

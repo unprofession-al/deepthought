@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -50,18 +51,14 @@ func parseBody(c *gin.Context, s interface{}) error {
 		return err
 	}
 
-	err = nil
-
 	if d == "yaml" {
 		err = yaml.Unmarshal(b, s)
+		fmt.Println(s)
 	} else {
 		err = json.Unmarshal(b, s)
 	}
 
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func renderHttp(code int, data interface{}, c *gin.Context) {

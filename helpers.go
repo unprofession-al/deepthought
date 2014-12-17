@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"io/ioutil"
 
@@ -52,8 +52,8 @@ func parseBody(c *gin.Context, s interface{}) error {
 	}
 
 	if d == "yaml" {
-		err = yaml.Unmarshal(b, s)
-		fmt.Println(s)
+		//err = yaml.Unmarshal(b, s)
+		err = errors.New("POST/PUT of yaml is not yet supported.")
 	} else {
 		err = json.Unmarshal(b, s)
 	}
@@ -67,6 +67,7 @@ func renderHttp(code int, data interface{}, c *gin.Context) {
 	if len(format) > 0 {
 		f = format[0]
 	}
+
 	if f == "yaml" {
 		out, _ := yaml.Marshal(data)
 		c.Data(code, "text/yaml", out)

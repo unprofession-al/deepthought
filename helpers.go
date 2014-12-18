@@ -51,6 +51,10 @@ func parseBody(c *gin.Context, s interface{}) error {
 		return err
 	}
 
+	if string(b) == "[]" || string(b) == "{}" || string(b) == "" {
+		return nil
+	}
+
 	if d == "yaml" {
 		//err = yaml.Unmarshal(b, s)
 		err = errors.New("POST/PUT of yaml is not yet supported.")

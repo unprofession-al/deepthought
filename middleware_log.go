@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+
 	"log"
 	"os"
 	"time"
@@ -41,16 +42,5 @@ func LogJSON() gin.HandlerFunc {
 		b, _ := json.Marshal(l)
 
 		out.Println(string(b))
-	}
-}
-
-func SetCORS() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if origin := c.Request.Header.Get("Origin"); origin != "" {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-		}
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Accept, Authorization")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 	}
 }

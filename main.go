@@ -16,6 +16,7 @@ func init() {
 	env.Var(&config.DbPort, "DB_PORT", "27017", "database port")
 	env.Var(&config.DbHost, "DB_HOST", "localhost", "database host")
 	env.Var(&config.NodevarsProvidersString, "NODEVARS_PROVIDERS", "", "comma-separated list of nodevars providers")
+	env.Var(&config.LdapConnString, "LDAP_CONN", "", "comma-separated list of LDAP Connections")
 }
 
 func main() {
@@ -25,12 +26,20 @@ func main() {
 		panic(err)
 	}
 
+	err = config.ParseLdapConn()
+	if err != nil {
+		panic(err)
+	}
+
 	data = initDatabase()
 
 	gin.SetMode(gin.ReleaseMode)
+
 	g := gin.New()
-	g.Use(SetCORS())
+
 	g.Use(LogJSON())
+	g.Use(SetCORS())
+	g.Use(BasicAuthLDAP())
 	g.Use(gin.Recovery())
 
 	g.OPTIONS("*path", func(c *gin.Context) {

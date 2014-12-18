@@ -7,9 +7,9 @@ type Configuration struct {
 	DbHost                  string             `json:"db_host"`
 	DbPort                  string             `json:"db_port"`
 	DbName                  string             `json:"db_name"`
-	NodevarsProvidersString string             `json:"-"`
+	NodevarsProvidersString string             `json:"-" yaml:"-"`
 	NodevarsProviders       []NodevarsProvider `json:"nodevars_providers"`
-	LdapConnString          string             `json:"-"`
+	LdapConnString          string             `json:"-" yaml:"-"`
 	LdapConn                LdapConn           `json:"ldap_connection"`
 }
 

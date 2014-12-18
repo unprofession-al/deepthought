@@ -39,38 +39,40 @@ func main() {
 
 	g.Use(LogJSON())
 	g.Use(SetCORS())
-	g.Use(BasicAuthLDAP())
 	g.Use(gin.Recovery())
 
 	g.OPTIONS("*path", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	g.GET("/nodes", ListNodes)
-	g.POST("/nodes/:node", AddNode)
-	g.GET("/nodes/:node", GetNode)
-	g.DELETE("/nodes/:node", DeleteNode)
-	g.GET("/nodes/:node/vars", GetMergedNodevars)
-	g.PUT("/nodes/:node/vars/:var", UpdateNodevars)
-	g.GET("/nodes/:node/vars/:var", GetNodevars)
-	g.POST("/nodes/:node/providers/:provider", TriggerProvider)
+	api := g.Group("/api", BasicAuthLDAP())
+	{
+		api.GET("/nodes", ListNodes)
+		api.POST("/nodes/:node", AddNode)
+		api.GET("/nodes/:node", GetNode)
+		api.DELETE("/nodes/:node", DeleteNode)
+		api.GET("/nodes/:node/vars", GetMergedNodevars)
+		api.PUT("/nodes/:node/vars/:var", UpdateNodevars)
+		api.GET("/nodes/:node/vars/:var", GetNodevars)
+		api.POST("/nodes/:node/providers/:provider", TriggerProvider)
 
-	g.GET("/roles", ListRoles)
-	g.POST("/roles/:role", AddRole)
-	g.GET("/roles/:role", GetRole)
-	g.DELETE("/roles/:role", DeleteRole)
-	g.GET("/roles/:role/vars", GetMergedRolevars)
-	g.PUT("/roles/:role/vars/:var", UpdateRolevars)
-	g.GET("/roles/:role/vars/:var", GetRolevars)
+		api.GET("/roles", ListRoles)
+		api.POST("/roles/:role", AddRole)
+		api.GET("/roles/:role", GetRole)
+		api.DELETE("/roles/:role", DeleteRole)
+		api.GET("/roles/:role/vars", GetMergedRolevars)
+		api.PUT("/roles/:role/vars/:var", UpdateRolevars)
+		api.GET("/roles/:role/vars/:var", GetRolevars)
 
-	g.POST("/nodes/:node/roles/:role", LinkNodeWithRole)
-	g.POST("/roles/:role/nodes/:node", LinkNodeWithRole)
-	g.DELETE("/nodes/:node/roles/:role", UnlinkNodeWithRole)
-	g.DELETE("/roles/:role/nodes/:node", UnlinkNodeWithRole)
+		api.POST("/nodes/:node/roles/:role", LinkNodeWithRole)
+		api.POST("/roles/:role/nodes/:node", LinkNodeWithRole)
+		api.DELETE("/nodes/:node/roles/:role", UnlinkNodeWithRole)
+		api.DELETE("/roles/:role/nodes/:node", UnlinkNodeWithRole)
+
+		api.GET("/_config", GetConfig)
+	}
 
 	g.GET("/inventory", GetInventory)
-
-	g.GET("/_config", GetConfig)
 
 	g.Run(":" + config.Port)
 

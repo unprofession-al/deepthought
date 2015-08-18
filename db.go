@@ -8,13 +8,22 @@ type Collections struct {
 }
 
 func initDatabase() *Collections {
-	session, err := mgo.Dial(config.DbHost + ":" + config.DbPort)
+	session, err := mgo.Dial(config.DbHosts)
 	if err != nil {
 		panic(err)
 	}
 
-	nodes := session.DB(config.DbName).C("nodes")
-	roles := session.DB(config.DbName).C("roles")
+	sess := session.DB(config.DbName)
+
+	if config.DbPass != "" && config.DbUser != "" {
+		err = sess.Login(config.DbUser, config.DbPass)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	nodes := sess.C("nodes")
+	roles := sess.C("roles")
 
 	return &Collections{
 		Nodes: *nodes,

@@ -13,20 +13,15 @@ var data = &Collections{}
 func init() {
 	env.Var(&config.Port, "PORT", "8089", "Port to bind to")
 	env.Var(&config.DbName, "DB_NAME", "deepthought", "name of the database")
-	env.Var(&config.DbPort, "DB_PORT", "27017", "database port")
-	env.Var(&config.DbHost, "DB_HOST", "localhost", "database host")
+	env.Var(&config.DbHosts, "DB_HOSTS", "localhost:27017", "database hosts")
+	env.Var(&config.DbUser, "DB_USER", "", "database user")
+	env.Var(&config.DbPass, "DB_PASS", "", "database password")
 	env.Var(&config.NodevarsProvidersString, "NODEVARS_PROVIDERS", "", "comma-separated list of nodevars providers")
-	env.Var(&config.LdapConnString, "LDAP_CONN", "", "comma-separated list of LDAP Connections")
 }
 
 func main() {
 	env.Parse("DEEP", false)
 	err := config.ParseProviders()
-	if err != nil {
-		panic(err)
-	}
-
-	err = config.ParseLdapConn()
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +40,7 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	api := g.Group("/api", BasicAuthLDAP())
+	api := g.Group("/api")
 	{
 		api.GET("/nodes", ListNodes)
 		api.POST("/nodes/:node", AddNode)

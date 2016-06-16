@@ -6,7 +6,7 @@ type Configuration struct {
 	Port                    string             `json:"port"`
 	DbHosts                 string             `json:"db_hosts"`
 	DbUser                  string             `json:"ub_user" yaml:"db_user"`
-	DbPass                  string             `json:"db_pass" yaml:"db_pass"`
+	DbPass                  string             `json:"-" yaml:"-"`
 	DbName                  string             `json:"db_name"`
 	NodevarsProvidersString string             `json:"-" yaml:"-"`
 	NodevarsProviders       []NodevarsProvider `json:"nodevars_providers"`
